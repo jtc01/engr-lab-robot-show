@@ -5,8 +5,8 @@
 Servo myservo; //create the servo object
 int pos=0; //variable to store the servo position
 bool bat=false;
-const int runPin = 7;
-const int outPin = 6;
+const int runTrigger = 7;
+const int runEcho = 6;
 long duration;
 float distanceCm;
 
@@ -19,6 +19,8 @@ void setup()
   pinMode(2, INPUT);
   myservo.attach(3);
   myservo.write(0);
+  pinMode(runTrigger, OUTPUT);
+  pinMode(runEcho, INPUT);
 }
 
 void loop()
@@ -48,15 +50,13 @@ void swing() {
 }
   
 void detectRun() {
-  pinMode(runPin, OUTPUT);
-  digitalWrite(runPin, LOW);
+  digitalWrite(runTrigger, LOW);
   delayMicroseconds(2);
-  digitalWrite(runPin, HIGH);
+  digitalWrite(runTrigger, HIGH);
   delayMicroseconds(10);
-  digitalWrite(runPin, LOW);
+  digitalWrite(runTrigger, LOW);
   
-  pinMode(runPin, INPUT);
-  duration = pulseIn(runPin, HIGH);
+  duration = pulseIn(runEcho, HIGH);
   distanceCm = duration / 58.0;
   
   if (distanceCm < 30){
