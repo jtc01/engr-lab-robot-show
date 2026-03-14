@@ -7,6 +7,9 @@ int pos=0; //variable to store the servo position
 bool bat=false;
 const int runTrigger = 7;
 const int runEcho = 6;
+const int outTrigger = 10;
+const int outEcho = 9;
+const int buzzer = 13;
 long duration;
 float distanceCm;
 
@@ -61,20 +64,23 @@ void detectRun() {
   
   if (distanceCm < 30){
     Serial.println("Home Run!");
+    tone(buzzer, 1000);
+    delay(500);
+
+    noTone(buzzer);
+    delay(500);
     bat=false;
   }
 }
 
-void detectOut(){
-  pinMode(outPin, OUTPUT);
-  digitalWrite(outPin, LOW);
+void detectOut() {
+  digitalWrite(outTrigger, LOW);
   delayMicroseconds(2);
-  digitalWrite(outPin, HIGH);
+  digitalWrite(outTrigger, HIGH);
   delayMicroseconds(10);
-  digitalWrite(outPin, LOW);
+  digitalWrite(outTrigger, LOW);
   
-  pinMode(outPin, INPUT);
-  duration = pulseIn(outPin, HIGH);
+  duration = pulseIn(outEcho, HIGH);
   distanceCm = duration / 58.0;
   
   if (distanceCm < 30){
