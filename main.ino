@@ -12,9 +12,10 @@
 #define NOTE_GS4 415
 
 
-Servo myservo; //create the servo object
+Servo bat; //create the servo object
+Servo pitcher;
 int pos=0; //variable to store the servo position
-bool bat=false;
+int state = 0;
 const int runTrigger = 7;
 const int runEcho = 6;
 const int outTrigger = 10;
@@ -35,8 +36,10 @@ void setup()
 {
   Serial.begin(9600);
   pinMode(2, INPUT);
-  myservo.attach(3);
-  myservo.write(0);
+  pitcher.attach(4);//Attach the pitcher motor to 4
+  pitcher.write(0);
+  bat.attach(3);
+  bat.write(0);
   pinMode(runTrigger, OUTPUT);
   pinMode(runEcho, INPUT);
 }
@@ -46,23 +49,40 @@ void loop()
   //Read button press
   read=digitalRead(2);
   //swing bat if button pressed and its not swinging already
-  if (read == 1 && bat==false){
+  if (read == 1 && state == 0){
+    pitch();
+  }
+  if (read == 1 && state == 1){
     swing();
   }
-  if (bat == true) {
+  if (state == 2) {
     detectRun();
     detectOut();
+    if (read == 1) {
+      state = 0;
+    }
   }
 }
 
+void pitch()
+{
+  state = 1;
+  for (int i=0; i<90; i++){
+    pitcher.write(i);
+    delay(10);
+  }
+  delay(500);
+  pitcher.write(0);
+}
+
 void swing() {
-  bat=true;
+  state = 2;
   for (int i=0; i<180; i++){
-    myservo.write(i);
+    bat.write(i);
     delay(1);
   }
   for (int i=180; i>=0; i--){
-    myservo.write(i);
+    bat.write(i);
     delay(10);
   }
 }
