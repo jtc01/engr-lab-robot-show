@@ -42,10 +42,14 @@ void setup()
   bat.write(0);
   pinMode(runTrigger, OUTPUT);
   pinMode(runEcho, INPUT);
+  pinMode(outTrigger, OUTPUT);
+  pinMode(outEcho, INPUT);
 }
 
 void loop()
 {
+  Serial.println(state);
+  //detectOut();
   //Read button press
   read=digitalRead(2);
   //swing bat if button pressed and its not swinging already
@@ -55,36 +59,46 @@ void loop()
   if (read == 1 && state == 1){
     swing();
   }
+  if (read == 1 && state == 2){
+    trombone();
+    state=0;
+  }
   if (state == 2) {
     detectRun();
     detectOut();
-    if (read == 1) {
-      state = 0;
-    }
   }
 }
 
 void pitch()
 {
+  Serial.println("pitching!");
+  tone(buzzer, NOTE_G4);
   state = 1;
+  delay(180);
+  noTone(buzzer);
   for (int i=0; i<90; i++){
     pitcher.write(i);
     delay(10);
   }
   delay(500);
   pitcher.write(0);
+  read=0;
 }
 
 void swing() {
+  tone(buzzer, NOTE_C5);
+  Serial.println("crack!");
   state = 2;
   for (int i=0; i<180; i++){
     bat.write(i);
     delay(1);
   }
+  noTone(buzzer);
   for (int i=180; i>=0; i--){
     bat.write(i);
     delay(10);
   }
+  read=0;
 }
   
 void detectRun() {
@@ -97,11 +111,12 @@ void detectRun() {
   duration = pulseIn(runEcho, HIGH);
   distanceCm = duration / 58.0;
   
-  if (distanceCm < 30){
+
+  if (distanceCm < 5){
     Serial.println("Home Run!");
     charge();
     delay(500);
-    bat=false;
+    state = 0;
   }
 }
 
@@ -112,13 +127,14 @@ void detectOut() {
   delayMicroseconds(10);
   digitalWrite(outTrigger, LOW);
   
+
   duration = pulseIn(outEcho, HIGH);
   distanceCm = duration / 58.0;
   
-  if (distanceCm < 30){
+  if (distanceCm < 10){
     Serial.println("Out!");
     trombone();
-    bat=false;
+    state = 0;
   }
 }
 
